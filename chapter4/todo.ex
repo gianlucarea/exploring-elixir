@@ -43,6 +43,23 @@ defmodule TodoList do
   end
 end
 
+defimpl Collectable, for: TodoList do
+  # Appender Lambda
+  def into(original) do
+    {original, &into_callback/2}
+  end
+
+  #Append if new entry
+  defp into_callback(todo_list,{:cont, entry}) do
+    TodoList.add_entry(todo_list,entry)
+  end
+
+  #Return the todo_list
+  defp into_callback(todo_list, :done), do: todo_list
+  #If call is halted operation is cancelled
+  defp into_callback(todo_list, :halt), do: :ok
+end
+
 defmodule TodoList.CSVImporter do
 
   def import!(path) do
