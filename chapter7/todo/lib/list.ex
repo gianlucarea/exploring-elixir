@@ -1,51 +1,44 @@
 defmodule Todo.List do
-  defstruct auto_id: 1, entries: Map.new
-  # def new, do: %TodoList{} Old simple new
+  defstruct next_id: 1, entries: %{}
+
   def new(entries \\ []) do
     Enum.reduce(
       entries,
       %Todo.List{},
-      &add_entry(&2,&1)
+      &add_entry(&2, &1)
     )
   end
 
-  def add_entry(
-    %Todo.List{entries: entries, auto_id: auto_id} = todo_list, entry
-  ) do
-    entry = Map.put(entry, :id, auto_id)
-    new_entry = Map.put(entries, auto_id, entry)
-    %Todo.List{todo_list | entries: new_entry, auto_id: auto_id + 1}
+  def size(todo_list) do
+    map_size(todo_list.entries)
   end
 
-  def retrive_entries(todo_list , date) do
+  def add_entry(todo_list, entry) do
+    entry = Map.put(entry, :id, todo_list.next_id)
+    new_entries = Map.put(todo_list.entries, todo_list.next_id, entry)
 
+    %Todo.List{todo_list | entries: new_entries, next_id: todo_list.next_id + 1}
+  end
+
+  def entries(todo_list, date) do
     todo_list.entries
     |> Map.values()
-    |> Enum.filter(fn entry -> entry.date == date end) |> IO.inspect()
+    |> Enum.filter(fn entry -> entry.date == date end)
   end
 
-  def update_entry(%Todo.List{} = todo_list, new_entry
-  ) do
-    update_entry(todo_list,new_entry.id, fn _ -> new_entry  end)
-  end
+  def update_entry(todo_list, entry_id, updater_fun) do
+    case Map.fetch(todo_list.entries, entry_id) do
+      :error ->
+        todo_list
 
-  def update_entry(%Todo.List{entries: entries} = todo_list, entry_id, update_fun
-  ) do
-    case entries[entry_id] do
-    nil -> todo_list #If not in entry don't do anything
-
-    old_entry -> new_entry = %{} = update_fun.(old_entry) # #{} force you to pass map in the method
-      new_entries = Map.put(entries, new_entry.id , new_entry)
-      %Todo.List{todo_list | entries: new_entries}
+      {:ok, old_entry} ->
+        new_entry = updater_fun.(old_entry)
+        new_entries = Map.put(todo_list.entries, new_entry.id, new_entry)
+        %Todo.List{todo_list | entries: new_entries}
     end
   end
 
-  def delete_entry(%Todo.List{entries: entries} = todo_list, entry_id) do
-    case entries[entry_id] do
-      nil -> todo_list #The element is not inside the todolist!
-
-      _ -> new_entries = Map.delete(entries, entry_id)
-      %Todo.List{todo_list | entries: new_entries}
-    end
+  def delete_entry(todo_list, entry_id) do
+    %Todo.List{todo_list | entries: Map.delete(todo_list.entries, entry_id)}
   end
 end

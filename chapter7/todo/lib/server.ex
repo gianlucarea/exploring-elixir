@@ -1,43 +1,42 @@
 defmodule Todo.Server do
   use GenServer
 
-  def start do
-    GenServer.start(Todo.Server,nil)
+  def start(name) do
+    GenServer.start(Todo.Server, name)
   end
 
-  def init(_) do
-    {:ok, Todo.List.new()}
+  def add_entry(todo_server, new_entry) do
+    GenServer.cast(todo_server, {:add_entry, new_entry})
   end
 
-  def add_entry(pid, entry) do
-    GenServer.cast(pid, {:add_entry, entry})
+  def entries(todo_server, date) do
+    GenServer.call(todo_server, {:entries, date})
   end
 
-  def delete_entry(pid, entry_id) do
-    GenServer.cast(pid, {:delete_entry, entry_id})
+  @impl GenServer
+  def init(name) do
+    {:ok, {name, nil}, {:continue, :init}}
   end
 
-  def update_entry(pid,entry) do
-    GenServer.cast(pid, {:update_entry, entry})
+  @impl GenServer
+  def handle_continue(:init, {name, nil}) do
+    todo_list = Todo.Database.get(name) || Todo.List.new()
+    {:noreply, {name, todo_list}}
   end
 
-  def get_entries(pid, date) do
-    GenServer.call(pid, {:entries, date})
+  @impl GenServer
+  def handle_cast({:add_entry, new_entry}, {name, todo_list}) do
+    new_list = Todo.List.add_entry(todo_list, new_entry)
+    Todo.Database.store(name, new_list)
+    {:noreply, {name, new_list}}
   end
 
-  def handle_cast({:add_entry, entry}, state) do
-    {:noreply, Todo.List.add_entry(state,entry)}
-  end
-
-  def handle_cast({:delete_enty, entry_id}, state) do
-    {:noreply, Todo.List.delete_entry(state,entry_id)}
-  end
-
-  def handle_cast({:update_entry, entry}, state) do
-    {:noreply, Todo.List.update_entry(state, entry)}
-  end
-
-  def handle_call({:entries, date}, _, state) do
-      {:reply, Todo.List.retrive_entries(state,date), state}
+  @impl GenServer
+  def handle_call({:entries, date}, _, {name, todo_list}) do
+    {
+      :reply,
+      Todo.List.entries(todo_list, date),
+      {name, todo_list}
+    }
   end
 end
