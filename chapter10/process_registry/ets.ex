@@ -5,6 +5,7 @@ defmodule XETS do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
+  @impl GenServer
   def init(_) do
     Process.flag(:trap_exit, true)
     :ets.new(__MODULE__,[:named_table, :public,  read_concurrency: true, write_concurrency: true])
