@@ -14,7 +14,6 @@ defmodule Games do
   """
   defmodule GuessingGame do
 
-
     def play() do
       guess_number = Enum.random(1..10)
       IO.puts(guess_number)
@@ -34,6 +33,31 @@ defmodule Games do
           loop(max_attempts-1,guess_number)
         input == guess_number ->
           IO.puts("You Win!")
+      end
+    end
+  end
+
+  defmodule RockPaperScissors do
+    def play() do
+      input = IO.gets("Choose rock, paper, or scissors: ") |> String.trim() |> String.downcase() |> String.to_atom()
+      answer = Enum.random([:rock,:paper,:scissors])
+      case input do
+        :rock -> match({input,answer})
+        :paper -> match({input,answer})
+        :scissors -> match({input,answer})
+          _ -> "NOT VALID CHOICE!"
+      end
+    end
+
+    def match({input,answer}) do
+      case {input,answer} do
+        {:rock, :scissors} -> "You win! Rock beat Scissors!"
+        {:paper, :rock} -> "You win! Paper beat Rock!"
+        {:scissors, :paper} -> "You win! Scissors beat Paper!"
+        {:rock, :paper} -> "You lose! Paper beat Rock!"
+        {:paper, :scissors} -> "You lose! Scissors beat Paper!"
+        {:scissors, :rock} -> "You lose! Rock beat Scissors!"
+        _ -> "It's a tie!"
       end
     end
   end
