@@ -88,6 +88,8 @@ defmodule Games do
 
     end
 
+    def test_feedback(answer, guess),do: feedback(answer,guess)
+
     defp feedback(answer, guess) do
         guess_list = String.graphemes(guess)
         target_list = String.graphemes(answer)
