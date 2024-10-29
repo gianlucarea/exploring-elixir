@@ -1,22 +1,55 @@
 defmodule Games do
-  @moduledoc """
-  Documentation for `Games`.
-  """
 
-  @doc """
-  Hello world.
+alias Games.GuessingGame
+alias Games.RockPaperScissors
+alias Games.Wordle
 
-  ## Examples
+  def main(args) do
+   parsed_args = OptionParser.parse(args, switches: [game: :string])
 
-      iex> Games.hello()
-      :world
+   case parsed_args do
+     {[game: "guessing"], _, _} -> GuessingGame.play()
+     {[game: "rps"], _, _} -> RockPaperScissors.play()
+     {[game: "wordle"], _, _} -> Wordle.play()
+     _ -> game_loop()
+   end
+  end
 
-  """
+
+  defp game_loop() do
+    IO.puts("""
+    What game would you like to play?
+    1. Guessing Game
+    2. Rock Paper Scissors
+    3. Wordle
+    Type "stop" to exit
+    """)
+
+    choice = IO.gets("Please enter your choice: ") |> String.trim()
+
+    case choice do
+      "1" ->
+        GuessingGame.play()
+      "2" ->
+        RockPaperScissors.play()
+      "3" ->
+        Wordle.play()
+      "stop" ->
+        IO.puts("Goodbye! Thanks for playing!")
+      _ ->
+        IO.puts("Invalid choice, please try again.")
+    end
+
+    # After each game or invalid choice, loop back unless "stop" was chosen
+    if choice != "stop" do
+      game_loop()
+    end
+  end
+
   defmodule GuessingGame do
 
     def play() do
       guess_number = Enum.random(1..10)
-      IO.puts(guess_number)
       max_attempts = 5
       loop(max_attempts,guess_number)
     end
@@ -51,13 +84,13 @@ defmodule Games do
 
     def match({input,answer}) do
       case {input,answer} do
-        {:rock, :scissors} -> "You win! Rock beat Scissors!"
-        {:paper, :rock} -> "You win! Paper beat Rock!"
-        {:scissors, :paper} -> "You win! Scissors beat Paper!"
-        {:rock, :paper} -> "You lose! Paper beat Rock!"
-        {:paper, :scissors} -> "You lose! Scissors beat Paper!"
-        {:scissors, :rock} -> "You lose! Rock beat Scissors!"
-        _ -> "It's a tie!"
+        {:rock, :scissors} -> "You win! Rock beat Scissors!" |> IO.puts()
+        {:paper, :rock} -> "You win! Paper beat Rock!" |> IO.puts()
+        {:scissors, :paper} -> "You win! Scissors beat Paper!" |> IO.puts()
+        {:rock, :paper} -> "You lose! Paper beat Rock!" |> IO.puts()
+        {:paper, :scissors} -> "You lose! Scissors beat Paper!" |> IO.puts()
+        {:scissors, :rock} -> "You lose! Rock beat Scissors!" |> IO.puts()
+        _ -> "It's a tie!" |> IO.puts()
       end
     end
   end
@@ -66,7 +99,6 @@ defmodule Games do
 
     def play() do
       answer = Enum.random(["toast", "tarts", "hello", "beats","apple","house","plane","bread","table","tiger","clock"])
-      IO.puts(answer)
       max_attempts = 4
       loop_wordle(max_attempts,answer)
     end
@@ -121,11 +153,6 @@ defmodule Games do
         true ->  handle_yellows(gs, target, greens, [:grey | yellows])
       end
     end
-
-
   end
 
-  def hello do
-    :world
-  end
 end
