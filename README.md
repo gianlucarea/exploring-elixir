@@ -9,8 +9,6 @@ exploring-elixir
 ├── elixir-in-action
 ```
 ## [dockyard-curriculum](./dockyard-curriculum) 
-
-## Description
 This project tells my journey in deepening the knowledge I have acquired about the Elixir programming language. This folder contains my solutions to some exercises available in this [curriculum](https://github.com/DockYard-Academy/curriculum).
 
 ## [elixir-in-action](./elixir-in-action)
